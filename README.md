@@ -15,7 +15,9 @@ Application of mathematical and numerical techniques to solve scientific and eng
 - Computation of resistance and current in an electrical circuit
 
 ### 3. Interpolation and approximation:
-- TODO
+- Bisection method
+- Newton method
+- Secant method
 
 ### 4. Dual annealing optimization:
 - Traveling salesman problem
