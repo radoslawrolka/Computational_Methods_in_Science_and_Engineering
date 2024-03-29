@@ -7,8 +7,8 @@
 #include <ctime>
 
 // Global 
-const int GRID_SIZE = 10;                 // Number of cells in each row and column
-const int DELAY = 1;                       // Delay between each frame in milliseconds
+const int GRID_SIZE = 512;                 // Number of cells in each row and column
+const int DELAY = 0;                       // Delay between each frame in milliseconds
 bool grid[GRID_SIZE][GRID_SIZE] = {false}; // Initialize grid with all cells set to false
 
 // Function prototypes
@@ -23,18 +23,19 @@ void initializeGrid();
 
 
 // Energy models (if grid[i][j] == grid[i+k][j+l] then energy += surround_by_same[k+1][l+1])
-const int surround_by_others[3][3] = {{0, 1, 0}, {1, 0, 1}, {0, 1, 0}};
-const int surround_by_same[3][3]   = {{0, -1, 0}, {-1, 0, -1}, {0, -1, 0}};
+const int chess_board[3][3] = {{-1, 1, -1}, {1, 0, 1}, {-1, 1, -1}};
+const int group[3][3]   = {{1, -1, 1}, {-1, 0, -1}, {1, -1, 1}};
+const int vertical[3][3] = {{1, -1, 1}, {1, 0, 1}, {1, -1, 1}};
 // TODO
 
 
 // Parameters
 const float density = 0.5;                 // Density of the grid (black cells)
 double temperature = 1;                    // Initial temperature
-const double cooling_rate = 0.98;          // Cooling rate
+const double cooling_rate = 0.999;          // Cooling rate
 const float acceptance = 50;              // Acceptance probability
 const int iterations = 10000;              // Number of iterations
-const int* model = surround_by_others[0];    // Energy model
+const int* model = vertical[0];    // Energy model
 const int nrows = 3;                       // Number of rows in the energy model
 const int ncols = 3;                       // Number of columns in the energy model
 
@@ -127,7 +128,8 @@ int countEnergy() {
                     int x = i + offset_x;
                     int y = j + offset_y;
                     if (x >= 0 && x < GRID_SIZE && y >= 0 && y < GRID_SIZE) {
-                        energy += surround_by_others[offset_x + 1][offset_y + 1] * (grid[i][j] == grid[x][y] ? 1 : -1);
+                        int index = (offset_x + 1) * 3 + (offset_y + 1);
+                        energy += model[index] * (grid[i][j] == grid[x][y] ? 1 : -1);
                     }
                 }
             }
