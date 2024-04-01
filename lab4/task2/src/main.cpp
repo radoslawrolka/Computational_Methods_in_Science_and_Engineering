@@ -26,16 +26,18 @@ void initializeGrid();
 
 // Energy models (if grid[i][j] == grid[i+k][j+l] then energy += surround_by_same[k+1][l+1])
 const int chess_board[3][3] = {{-1, 1, -1}, {1, 0, 1}, {-1, 1, -1}};
-const int group[3][3]   = {{-1, -1, -1}, {-1, 0, -1}, {-1, -1, -1}};
+const int group[3][3]   = {{0, -1, 0}, {-1, 0, -1}, {0, -1, 0}};
+const int away[3][3]    = {{0, 1, 0}, {1, 0, 1}, {0, 1, 0}};
 const int vertical[3][3] = {{1, -1, 1}, {1, 0, 1}, {1, -1, 1}};
 const int horizontal[3][3] = {{1, 1, 1}, {-1, 0, -1}, {1, 1, 1}};
 const int diagonal[3][3] = {{-10, 5, 10}, {-5, 0, -5}, {10, 5, -10}};
+const int grid[5][5] = {{-1, 0, -1, 0, -1}, {0, 1, 0, 1, 0}, {-1, 0, -1, 0, -1}, {0, 1, 0, 1, 0}, {-1, 0, -1, 0, -1}};
 
 // Parameters
-const float density = 0.5;                 // Density of the grid (black cells)
+const float density = 0.4;                 // Density of the grid (black cells)
 double temperature = 1;                    // Initial temperature
 const double cooling_rate = 0.999;         // Cooling rate
-const float acceptance = 50;               // Acceptance probability
+const float acceptance = 0.5;               // Acceptance probability
 const int iterations = 10000;              // Number of iterations
 const int* model = group[0];              // Energy model
 const int nrows = 5;                       // Number of rows in the energy model
@@ -142,7 +144,7 @@ void annealing(int& energy) {
     if (delta_energy < 0) {
         energy += delta_energy;
     } else {
-        if ( (rand() / RAND_MAX) < exp(-delta_energy / temperature)) {
+        if (delta_energy * (rand() / RAND_MAX) < acceptance * temperature) {
             energy += delta_energy;
         } else {
             bool temp = grid[points.x1][points.y1];
