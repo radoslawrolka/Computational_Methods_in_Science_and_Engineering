@@ -4,10 +4,13 @@
 #include <vector>
 #include <algorithm>
 #include <random>
+#include <string>
 #include <ctime>
+#include <math.h>
+
 
 // Global 
-const int GRID_SIZE = 10;                 // Number of cells in each row and column
+const int GRID_SIZE = 512;                 // Number of cells in each row and column
 const int DELAY = 0;                       // Delay between each frame in milliseconds
 bool grid[GRID_SIZE][GRID_SIZE] = {false}; // Initialize grid with all cells set to false
 std::random_device rd;
@@ -25,39 +28,67 @@ void initializeGrid();
 
 
 // Energy models (if grid[i][j] == grid[i+k][j+l] then energy += surround_by_same[k+1][l+1])
-const int chess_board[3][3] = {{-1, 1, -1}, {1, 0, 1}, {-1, 1, -1}};
-const int group[3][3]   = {{0, -1, 0}, {-1, 0, -1}, {0, -1, 0}};
-const int away[3][3]    = {{0, 1, 0}, {1, 0, 1}, {0, 1, 0}};
-const int vertical[3][3] = {{1, -1, 1}, {1, 0, 1}, {1, -1, 1}};
-const int horizontal[3][3] = {{1, 1, 1}, {-1, 0, -1}, {1, 1, 1}};
-const int diagonal[3][3] = {{-10, 5, 10}, {-5, 0, -5}, {10, 5, -10}};
-const int grid[5][5] = {{-1, 0, -1, 0, -1}, {0, 1, 0, 1, 0}, {-1, 0, -1, 0, -1}, {0, 1, 0, 1, 0}, {-1, 0, -1, 0, -1}};
+int chess_board[3][3] = {{-1, 1, -1}, {1, 0, 1}, {-1, 1, -1}};
+int group[3][3]   = {{0, -1, 0}, {-1, 0, -1}, {0, -1, 0}};
+int away[3][3]    = {{0, 1, 0}, {1, 0, 1}, {0, 1, 0}};
+int vertical[3][3] = {{1, -1, 1}, {1, 0, 1}, {1, -1, 1}};
+int horizontal[3][3] = {{1, 1, 1}, {-1, 0, -1}, {1, 1, 1}};
+int diagonal[3][3] = {{-10, 5, 10}, {-5, 0, -5}, {10, 5, -10}};
+int grided[5][5] = {{-1, 0, -1, 0, -1}, {0, 1, 0, 1, 0}, {-1, 0, -1, 0, -1}, {0, 1, 0, 1, 0}, {-1, 0, -1, 0, -1}};
 
 // Parameters
-const float density = 0.4;                 // Density of the grid (black cells)
+const float density = 0.1;                 // Density of the grid (black cells)
 double temperature = 1;                    // Initial temperature
 const double cooling_rate = 0.999;         // Cooling rate
 const float acceptance = 0.5;               // Acceptance probability
 const int iterations = 10000;              // Number of iterations
-const int* model = group[0];              // Energy model
-const int nrows = 5;                       // Number of rows in the energy model
-const int ncols = 5;                       // Number of columns in the energy model
+int* model = group[0];              // Energy model
+int nrows = 3;                       // Number of rows in the energy model
+int ncols = 3;                       // Number of columns in the energy model
 
-int main() {
-    srand(time(NULL));
+
+int main(int argc, char** argv) {
+    std::string title = "Simulated Annealing"; // Window title
+    if (std::string(argv[1]) == "1") {
+        model = chess_board[0];
+        title = "Simulated Annealing - Chess Board";
+    } else if (std::string(argv[1]) == "2") {
+        model = group[0];
+        title = "Simulated Annealing - Group";
+    } else if (std::string(argv[1]) == "3") {
+        model = away[0];
+        title = "Simulated Annealing - Away";
+    } else if (std::string(argv[1]) == "4") {
+        model = vertical[0];
+        title = "Simulated Annealing - Vertical";
+    } else if (std::string(argv[1]) == "5") {
+        model = horizontal[0];
+        title = "Simulated Annealing - Horizontal";
+    } else if (std::string(argv[1]) == "6") {
+        model = diagonal[0];
+        title = "Simulated Annealing - Diagonal";
+    } else if (std::string(argv[1]) == "7") {
+        model = grided[0];
+        title = "Simulated Annealing - Grided";
+        nrows = 5;
+        ncols = 5;
+    }
+    printf("Model: %s\n", title.c_str());
     int iterations = 0;
     initializeGrid();
     int energy = countEnergy();
-    sf::RenderWindow window(sf::VideoMode(GRID_SIZE, GRID_SIZE), "Bitmap annealing");
+    sf::RenderWindow window(sf::VideoMode(GRID_SIZE, GRID_SIZE), title);
     while (window.isOpen()) {
         sf::Event event;
         if (window.pollEvent(event) && event.type == sf::Event::Closed) {
             window.close();
         }
         annealing(energy);
-        drawGrid(window);
-        sf::sleep(sf::milliseconds(DELAY));
-        std::cout << "Iter: " << iterations << " Temp: " << temperature << " Energy: " << energy << std::endl;
+        if (iterations % 100 == 0) {
+            drawGrid(window);
+        }
+        //sf::sleep(sf::milliseconds(DELAY));
+        //std::cout << "Iter: " << iterations << " Temp: " << temperature << " Energy: " << energy << std::endl;
         ++iterations;
     }
     return 0;
@@ -140,11 +171,15 @@ int countEnergy() {
 void annealing(int& energy) {
     temperature *= cooling_rate;
     Points points = RandomPoints();
+    while (grid[points.x1][points.y1] == grid[points.x2][points.y2]) {
+        points = RandomPoints();
+    }
+    
     int delta_energy = swapPoints(points);
     if (delta_energy < 0) {
         energy += delta_energy;
     } else {
-        if (delta_energy * (rand() / RAND_MAX) < acceptance * temperature) {
+        if (rand() / double(RAND_MAX) < exp(-delta_energy / temperature)) {
             energy += delta_energy;
         } else {
             bool temp = grid[points.x1][points.y1];
