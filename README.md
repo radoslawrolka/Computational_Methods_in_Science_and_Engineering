@@ -27,3 +27,17 @@ Application of mathematical and numerical techniques to solve scientific and eng
 ### 5. Singular value decomposition:
 - Spherical transformations
 - Image compression
+
+### 6. Search Engine
+- Web crawler
+- Spare matrix with IDF
+- Search engine with cosine similarity
+- React Native app
+
+### 7. Spectral decomposition:
+- Power iteration
+- Inverse iteration
+- Rayleigh quotient iteration
+
+### 8. PageRank:
+- PageRank algorithm for a network of web pages
