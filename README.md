@@ -41,3 +41,11 @@ Application of mathematical and numerical techniques to solve scientific and eng
 
 ### 8. PageRank:
 - PageRank algorithm for a network of web pages
+
+### 9. Discrete Fourier Transform:
+- Pattern recognition in image
+- OCR
+
+### 10. Fast Fourier Transform:
+- Naive implementation of DFT
+- Recursive Cooley-Tukey FFT implementation
