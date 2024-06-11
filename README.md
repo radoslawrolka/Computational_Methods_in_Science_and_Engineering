@@ -49,3 +49,11 @@ Application of mathematical and numerical techniques to solve scientific and eng
 ### 10. Fast Fourier Transform:
 - Naive implementation of DFT
 - Recursive Cooley-Tukey FFT implementation
+
+### 11. QR Factorization
+- Gram-Schmidt QR factorization
+- Solving system of equations with QR factorization
+
+### 12. Numerical Integration
+- Complex Simpson's quadrature
+- Definite double integrals
